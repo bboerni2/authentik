@@ -1,7 +1,8 @@
 name: 🤖 Sync mit Authentik upstream
 on:
   schedule:
-    - cron: '0 3 * * *'  # jeden Tag um 03:00 UTC (05:00 Europe/Vienna)
+    - cron:  '0 3 * * *'  # jeden Tag um 03:00 UTC (05:00 Europe/Vienna)
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -10,12 +11,25 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Upstream remote hinzufügen
-        run: git remote add upstream https://github.com/goauthentik/authentik.git
+          # Credentials für Push werden automatisch über GITHUB_TOKEN bereitgestellt
+
+      - name: Upstream-Remote konfigurieren
+        run: |
+          # Entferne 'upstream', falls er schon existiert
+          if git remote | grep -q upstream; then
+            git remote remove upstream
+          fi
+          git remote add upstream https://github.com/goauthentik/authentik.git
+
       - name: Upstream holen & mergen
         run: |
           git fetch upstream
           git checkout main
+          # Automatischen Merge; bei Konflikten schlägt der Workflow fehl,
+          # was du je nach Bedarf per Strategy-Option anpassen könntest.
           git merge upstream/main --no-edit
+
       - name: Push in dein privates Repo
-        run: git push origin main
+        run: |
+          # Sofern keine Konflikte auftraten, push
+          git push origin main

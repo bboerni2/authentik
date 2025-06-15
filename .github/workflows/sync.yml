@@ -1,7 +1,5 @@
 name: 🤖 Sync mit Authentik upstream
 on:
-  schedule:
-    - cron: '0 3 1 * *'
   workflow_dispatch:
 
 jobs:
